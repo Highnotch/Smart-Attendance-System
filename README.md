@@ -1,6 +1,6 @@
 # Smart Attendance System using Face Recognition and OpenCV
 
-![Project Banner](link_to_your_banner_image)
+
 
 ## Overview
 
