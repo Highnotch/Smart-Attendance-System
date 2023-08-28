@@ -20,6 +20,4 @@ The Smart Attendance System is a cutting-edge project that utilizes the power of
 
 - **Accuracy and Security:** The face recognition algorithm is designed to be accurate and reliable. Additionally, the system prioritizes data security, and no images or facial data are stored or shared outside the system.
 
-## Installation and Setup
 
-1. Clone the repository to your local machine:
