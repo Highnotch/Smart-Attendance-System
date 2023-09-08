@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Login</title>
+	<script src="js/unauthenticated.js"></script>
+
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!--===============================================================================================-->
+	<link rel="icon" type="image/png" href="images/icons/favicon.ico" />
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/iconic/css/material-design-iconic-font.min.css">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="css/util.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<!--===============================================================================================-->
+</head>
+
+<body>
+
+	<div class="limiter">
+		<div class="container-login100" style="background-image: url('images/bg-01.jpg');">
+			<div class="wrap-login100 p-l-55 p-r-55 p-t-65 p-b-54">
+				<form class="login100-form validate-form-signup">
+					<span class="login100-form-title p-b-49">
+						Sign Up for a new account
+					</span>
+
+					<div class="wrap-input100 validate-input m-b-23" data-validate=" Your Name is required">
+						<span class="label-input100">Name</span>
+						<input class="input100" type="text" name="name" placeholder="Full Name">
+						<span class="focus-input100" data-symbol="&#xf206;"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input m-b-23" data-validate="Email is required">
+						<span class="label-input100">Email</span>
+						<input class="input100" type="email" name="email" placeholder="Type your email">
+						<span class="focus-input100" data-symbol="&#xf206;"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate="Password is required">
+						<span class="label-input100">Password</span>
+						<input class="input100" type="password" name="password" placeholder="Type your password">
+						<span class="focus-input100" data-symbol="&#xf190;"></span>
+					</div>
+
+					<div id="choice-btn-container" class="container-login100-form-btn">
+						<div>Student</div>
+						<div>Instructor</div>
+					</div>
+
+					<style>
+						#choice-btn-container {
+							margin: 20px 0;
+						}
+					
+						#choice-btn-container>div {
+							text-align: center;
+							width: 40%;
+							padding: 10px 10px;
+							margin: 10px;
+							border-radius: 10px;
+						}
+					
+						#choice-btn-container>div:hover {
+							cursor: pointer
+						}
+					</style>
+					
+					<script>
+						let divs = document.querySelectorAll('#choice-btn-container > div')
+						divs[0].style.backgroundColor = 'black'
+						divs[0].style.color = 'white'
+
+						divs[0].addEventListener('click', () => {
+							divs[0].style.backgroundColor = 'black'
+							divs[0].style.color = 'white'
+							divs[1].style.backgroundColor = 'white'
+							divs[1].style.color = 'black'
+
+						})
+
+						divs[1].addEventListener('click', () => {
+							divs[1].style.backgroundColor = 'black'
+							divs[1].style.color = 'white'
+							divs[0].style.backgroundColor = 'white'
+							divs[0].style.color = 'black'
+
+						})
+					</script>
+
+					<div class="container-login100-form-btn">
+						<div class="wrap-login100-form-btn">
+							<div class="login100-form-bgbtn"></div>
+							<button class="login100-form-btn">
+								Sign Up
+							</button>
+						</div>
+					</div>
+					<div class="error-message" class="login100-form-btn"
+						style="padding-top: 20px;color:red;text-align: center;">
+					</div>
+
+					<div class="flex-col-c p-t-50">
+						<a href="/login.html" class="txt2">
+							Already have an account? Login Instead.
+						</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+	<div id="dropDownSelect1"></div>
+
+	<!--===============================================================================================-->
+	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+	<!--===============================================================================================-->
+	<script src="vendor/animsition/js/animsition.min.js"></script>
+	<!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+	<!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+	<!--===============================================================================================-->
+	<script src="vendor/daterangepicker/moment.min.js"></script>
+	<script src="vendor/daterangepicker/daterangepicker.js"></script>
+	<!--===============================================================================================-->
+	<script src="vendor/countdowntime/countdowntime.js"></script>
+	<!--===============================================================================================-->
+	<script src="js/main.js"></script>
+
+</body>
+
+</html>

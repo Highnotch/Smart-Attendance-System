@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/authenticated.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/header.css">
+    <title>Courses - Smart Attendance</title>
+</head>
+
+<body>
+
+    <header class="site-header" style="z-index: 100;">
+        <div class="wrapper site-header__wrapper">
+            <a href="#" class="brand">Smart Attendance Portal</a>
+            <nav class="nav">
+                <div class="nav__toggle" aria-expanded="false" type="button"
+                    style="background-color: #a7e5fc; padding:5px 10px;border-radius: 5px;">
+                    menu
+                </div>
+                <ul class="nav__wrapper">
+                    <li class="nav__item" id="add-your-image" style="display:none">
+                        <form action="/api/v1/upload_image" method="post" enctype="multipart/form-data" id="image-form">
+                            <label for="add-your-image-input">Add your Image</label>    
+                            <input type="file" name="add-your-image-input" id="add-your-image-input" style="display:none"> 
+                        </form>                            
+                    </li>
+                    <li class="nav__item" id="profile">...</li>
+                    <li class="nav__item" id="logout">Logout</li>
+                    <style>
+                        li {
+                            padding: 24px 16px;
+                        }
+                    
+                        li:hover, li > label:hover {
+                            text-decoration: underline;
+                            cursor: pointer
+                        }
+                    </style>
+                    <script>
+                        document.getElementById('add-your-image-input').addEventListener('change', async (event) => {
+                            let form = new FormData(document.querySelector('#image-form'))
+                            await fetch("/api/v1/upload_image", {
+                                method: 'POST',
+                                body: form
+                            })
+                                .then(async (res) => {
+                                    if(res.status == 200) alert("Image has been updated successfully.")
+                                    else {
+                                        const response = await res.json()
+                                        console.error(response)
+                                        alert(response.message)
+                                    }
+                                })
+                                .catch((err) => {
+                                    console.error(err)
+                                    alert(err)
+                                })
+                            event.preventDefault()
+                        
+                        })
+                        document.getElementById('profile').addEventListener('click', async () => {
+                            const res = await fetch('/api/v1/switch')
+                            if(res.status == 200) {
+                                location.reload()
+                            } else {
+                                const j = await res.json()
+                                console.error(j)
+                                alert(j.message)
+                            }
+                        })
+                        document.getElementById('logout').addEventListener('click', async () => {
+                            await fetch('/api/v1/logout')
+                                .then((res) => {
+                                    if (res.status == 200) window.location.replace('/login.html')
+                                    else {
+                                        alert("Something went wrong.")
+                                    }
+                                })
+                                .catch((err) => {
+                                    console.error(err)
+                                    alert(err)
+                                })
+                        })
+                    </script>
+
+                </ul>
+            </nav>
+            
+        </div>
+    </header>
+
+    <div class="container p-5">
+        <div class="m-3" style="display:flex; flex-direction: row;">
+            <div style="flex:1">
+                <h1 style="color: #262647 !important; font-size: x-large;"><b id="welcome"></b></h1>
+                <h4 style="color: #262647 !important;" class="mt-2" id="your-courses"></h4>
+            </div>
+            <div>
+                <button id="add-new-course" class="btn" data-bs-toggle="modal" data-bs-target="#exampleModal"></button>
+            </div>
+            <style>
+                #add-new-course{
+                    background-color: #b7eafb;
+                    padding: 10px 20px;
+                    border-radius: 10px;
+                    cursor:pointer;
+                }
+                #add-new-course:hover{
+                    background-color: #9ae2fa;
+                }
+            </style>
+        </div>
+        <div id="table-container" class="card m-3 mt-5 p-4 border-0  shadow-lg" style="border-radius: 1rem !important;display:none">
+			<div class="table-responsive">
+                <table class="table table-bordered" id="courses-table" border="1">
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel" style="font-size: 20px;"></h5>
+              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" onclick="clearErrors()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div id="instructor-modal" style="display: none;">
+                    <label class="custom-field one">
+                        <input type="text" placeholder="" id="course-code"/>
+                        <span class="placeholder">Course Code</span>
+                        <span class="error-message" aria-live="polite" id="course-code-error"></span>
+    
+                    </label>
+    
+                    
+                    <label class="custom-field one">
+                        <input type="text" placeholder="" id="course-name">
+                        <span class="placeholder">Course Name</span>
+                        <span class="error-message" aria-live="polite" id="course-name-error"></span>
+                    </label>
+    
+                    <script>
+                        document.getElementById('course-code').addEventListener('input', (event) => {
+                            if(event.target.value.length == 0) document.getElementById('course-code-error').innerText = "Course Code cannot be empty"
+                            else document.getElementById('course-code-error').innerText = ""
+                        })
+                        document.getElementById('course-name').addEventListener('input', (event) => {
+                            if(event.target.value.length == 0) document.getElementById('course-name-error').innerText = "Course Name cannot be empty"
+                            else document.getElementById('course-name-error').innerText = ""
+                        })
+                    </script>
+                </div>
+                <div id="student-modal" class="custom-field" style="display: none;">
+                    <select name="student-enroll-course"></select>
+                    <p style="display: none; color: red" id="no-courses-error">There are no courses available right now.</p>
+                </div>
+                
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal" onclick="clearErrors()">Cancel</button>
+              <button type="button" class="btn btn-primary btn-sm" id="modal-btn" >Create New Course</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+    <!-- <script src="js/RDataTB.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/gh/Rakhmadi/RdataTB@master/dist/index.js"></script>
+
+
+    <script src="js/header.js"></script>
+    <script>
+        
+        clearErrors = () => {
+            document.getElementById('course-code-error').innerText = ""
+            document.getElementById('course-name-error').innerText = ""
+            document.getElementById('course-code').value = ""
+            document.getElementById('course-name').value = ""
+        }
+
+        document.querySelector('#logout').addEventListener('click', async () => {
+            await fetch('/api/v1/logout')
+                .then((res) => { if (response.status == 200) window.location.href = '/login.html' })
+                .catch((err) => {
+                    console.error(err);
+
+                })
+        })
+
+        getData = async () => {
+            // fetch Data
+            let res = await fetch('/api/v1/courses')
+            if (res.status != 200) {
+                res = await res.json()
+                alert(res.message)
+                console.error(res)
+                return
+            }
+            data = await res.json()
+            console.log(data)
+            if(data.result.length) {
+
+                const table = document.getElementById('courses-table')
+                if(data.is_instructor){
+                    table.innerHTML = `					
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th name="heading-first">Course Code</th>
+                                <th>Course Name</th>
+                                <th>Number of Students</th>
+                                <th name="heading-last">Last Class</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="courses-table-body">
+                        </tbody>`
+                    
+                    const table_body = document.getElementById('courses-table-body')
+                    let temp = ""
+                    data.result.forEach((item) => {
+                        temp+=`
+                            <tr>
+                                <td>${item[0]}</td>
+                                <td>${item[1]}</td>
+                                <td>${item[2]}</td>
+                                <td>${item[4]}</td>
+                                <td>${item[5] == null ? "No classes yet." : item[5]}</td>
+                                <td><button onclick="open_course(${item[0]} )" class="btn btn-primary btn-small">Open</button></td>
+                            </tr>
+                        `
+                    })
+                    table_body.innerHTML = temp
+
+                } else {
+                    table.innerHTML = `					
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th name="heading-first">Course Code</th>
+                                <th>Course Name</th>
+                                <th>Instructor</th>
+                                <th name="heading-last">Last Class</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="courses-table-body">
+                        </tbody>`
+                    
+                    const table_body = document.getElementById('courses-table-body')
+                    let temp = ""
+                    data.result.forEach((item) => {
+                        temp+=`
+                            <tr>
+                                <td>${item.id}</td>
+                                <td>${item.code}</td>
+                                <td>${item.name}</td>
+                                <td>${item.instructor}</td>
+                                <td>${item.latest_class}</td>
+                                <td><button onclick="open_course(${item.id})" class="btn btn-primary btn-small">Open</button></td>
+                            </tr>
+                        `
+                    })
+                    table_body.innerHTML = temp
+                    
+                }
+                
+
+                let x = new RdataTB('courses-table', {
+                    // RenderJSON: data.result,
+                    ShowSearch:false, 
+                    ShowSelect:false,
+                    HideColumn:["id"]
+                })
+                document.getElementById('table-container').style.display = 'block'
+            } 
+            document.getElementById('profile').innerText = `${data.name} - ${data.is_instructor ? "Instructor" : "Student"} (Switch)`
+            document.getElementById('welcome').innerText = `Hello, ${data.name}`
+            document.getElementById('your-courses').
+                innerText = 
+                data.is_instructor ? 
+                (data.result.length ? "Here are the courses you teach: " : "You are teaching no courses this semester.") 
+                : (data.result.length ? "These are the courses you have taken: " : "You have not enrolled in any courses yet.")
+            
+            document.getElementById('add-new-course').innerText = data.is_instructor ? "Start New Course" : "Enroll New Course"
+            document.getElementById('exampleModalLabel').innerText = data.is_instructor ? "Start New Course" : "Enroll New Course"
+            document.getElementById('modal-btn').innerText = data.is_instructor ? "Start New Course" : "Enroll New Course"
+            document.getElementById('add-your-image').style.display = data.is_instructor ? "none" : "block"
+            
+            if(data.is_instructor) {
+                document.getElementById('instructor-modal').style.display = 'block'
+                document.getElementById('modal-btn').addEventListener('click', create_new_course)
+            } else {
+                document.getElementById('modal-btn').addEventListener('click', enroll_new_course)
+                const select_tag = document.querySelector('#student-modal > select')
+                if(data.courses.length == 0) {
+                    select_tag.style.display = 'none'
+                    document.getElementById('no-courses-error').style.display = 'block'
+                }else {
+                    data.courses.forEach((item) => {
+                        select_tag.innerHTML += `<option value="${item[0]}">${item[1]}</option>`
+                    })
+                }
+                document.getElementById('student-modal').style.display = 'block'
+            }
+        }
+        getData()
+
+
+        async function create_new_course() {
+            const code = document.getElementById('course-code').value
+            const name = document.getElementById('course-name').value
+
+            if(name.length == 0) {
+                document.getElementById('course-name-error').innerText = "Course Name cannot be empty"
+            }
+            if(code.length == 0) {
+                document.getElementById('course-code-error').innerText = "Course Code cannot be empty"
+            }
+            if(code.length + name.length == 0) return;
+            await fetch('/api/v1/courses', {
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify({name:name, code:code})
+            })
+                .then(async (res) => {
+                    if(res.status == 200) location.reload()
+                    else {
+                        const b = await res.json();
+                        console.error(b)
+                        alert(b.message)
+                    }
+                })
+        }
+
+        async function enroll_new_course() {
+            const course_id = document.querySelector('#student-modal > select').value
+            await fetch('/api/v1/courses', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({course_id: course_id})
+            })
+                .then(async (res) => {
+                    if(res.status == 200) location.reload()
+                    else {
+                        const temp = await res.json()
+                        console.error(temp)
+                        alert(temp.message)
+                    }
+                })
+                .catch((err) => {
+                    alert("Something went wrong.")
+                    console.error(err)
+                })
+        }
+
+        open_course = async (id) => {
+            await fetch(`/api/v1/course/${id}`)
+                .then(async (res) => {
+                    if(res.status == 200) window.location.href = "/course.html"
+                    else {
+                        const temp = await res.json()
+                        console.error(temp)
+                        alert(temp.message)
+                    }
+                })
+                .catch((err) => {
+                    console.error(err)
+                })
+        }
+
+
+
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+    crossorigin="anonymous"></script>
+    <style>
+
+        .custom-field  {
+            width: 100%;
+        }
+
+        .custom-field > input, select {
+            width: 100%;
+        }
+
+        .custom-field.one input, select {
+            font-size: larger;
+            background: none;
+            border: 2px solid #ddd;
+            transition: border-color 0.3s ease;
+        }
+
+        select {
+            appearance: none;
+            padding: 6px 10px;
+            line-height: 35px;
+        }
+
+        .custom-field.one input + .placeholder {
+            left: 8px;
+            padding: 0 5px;
+        }
+
+        .custom-field.one input.dirty,
+        .custom-field.one input:not(:placeholder-shown),
+        .custom-field.one input:focus {
+            border-color: #222;
+            transition-delay: 0.1s
+        }
+
+        .custom-field.one input.dirty + .placeholder,
+        .custom-field.one input:not(:placeholder-shown) + .placeholder,
+        .custom-field.one input:focus + .placeholder {
+            top: 0;
+            font-size: 10px;
+            color: #222;
+            background: #fff;
+            width: auto
+        }
+
+        
+        .custom-field {
+            position: relative;
+            font-size: 14px;
+            border-top: 20px solid transparent;
+            margin-bottom: 5px;
+            display: inline-block;
+            --field-padding: 12px;
+        }
+
+        .custom-field input {
+            border: none;
+            -webkit-appearance: none;
+            -ms-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: #f2f2f2;
+            padding: var(--field-padding);
+            border-radius: 3px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .custom-field .placeholder {
+            position: absolute;
+            left: var(--field-padding);
+            width: calc(100% - (var(--field-padding) * 2));
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            top: 22px;
+            line-height: 100%;
+            transform: translateY(-50%);
+            color: #aaa;
+            transition: 
+                top 0.3s ease,
+                color 0.3s ease,
+                font-size 0.3s ease;
+        }
+
+        .custom-field input.dirty + .placeholder,
+        .custom-field input:focus + .placeholder,
+        .custom-field input:not(:placeholder-shown) + .placeholder {
+            top: -10px;
+            font-size: 10px;
+            color: #222;
+        }
+
+        .custom-field .error-message {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            font-size: 12px;
+            background: #d30909;
+            color: #fff;
+            height: 24px;
+        }
+
+        .custom-field .error-message:empty {
+            opacity: 0;
+        }
+
+        #courses-table > thead > tr :nth-child(2) {
+            border-top-left-radius: 20px;
+        } 
+        #courses-table > thead > tr :nth-child(6) {
+            border-top-right-radius: 20px;
+        } 
+
+        tbody > tr:hover {
+            background-color: #e3e3e3;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        th {
+            font-weight: 600;
+            font-size: 16px;
+            /* border: 2px rgba(74, 71, 71, 0.1) solid !important; */
+            padding: 20px !important;
+            background-color: #B7EAFB !important;
+        }
+
+        td{
+            padding: 20px !important;
+            border: 2px rgba(74, 71, 71, 0.1) solid !important;
+
+        }
+
+        tr > :last-child {
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+        }
+
+        .Selc {
+            display: none;
+        }
+        
+
+    </style>
+</body>
+
+</html>

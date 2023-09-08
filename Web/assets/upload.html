@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image</title>
+    <link rel="stylesheet" href="css/navbar.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        Upload Image
+    </nav>
+    <form action="" enctype="multipart/form-data">
+        <label for="image"></label>
+        <input type="file" name="image" id="file_input" />
+        <input type="submit">
+    </form>
+
+    <script>
+        const form = document.querySelector('form')
+        form.addEventListener('submit', submit)
+
+        async function submit(event) {
+            event.preventDefault()
+            try {
+
+                const formData = new FormData(form)
+                alert("1")
+                await fetch('/api/v1/face_recognition', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(async (response) => {
+                        alert(JSON.stringify(await response.json()))
+                        form.reset()
+                    })
+                    .catch((err) => { alert(JSON.stringify(err)) })
+
+            } catch (err) {
+                alert(JSON.stringify(err))
+            }
+
+        }
+    </script>
+</body>
+
+</html>

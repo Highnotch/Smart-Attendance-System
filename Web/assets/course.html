@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>- Smart Attendance</title>
+    <script src="js/authenticated.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/header.css">
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+</head>
+<body>
+    <header class="site-header" style="z-index: 100;">
+        <div class="wrapper site-header__wrapper">
+            <a href="#" class="brand">Smart Attendance Portal</a>
+            <nav class="nav">
+                <div class="nav__toggle" aria-expanded="false" type="button"
+                    style="background-color: #a7e5fc; padding:5px 10px;border-radius: 5px;">
+                    menu
+                </div>
+                <ul class="nav__wrapper">
+
+                    <!-- <li class="nav__item" id="add-your-image" style="display:none">
+                        <form action="/api/v1/upload_image" method="post" enctype="multipart/form-data" id="image-form">
+                            <label for="add-your-image-input">Add your Image</label>    
+                            <input type="file" name="add-your-image-input" id="add-your-image-input" style="display:none"> 
+                        </form>                            
+                    </li> -->
+                    <li class="nav__item" id="profile">...</li>
+                    <li class="nav__item" id="logout">Logout</li>
+                    <style>
+                        li {
+                            padding: 24px 16px;
+                        }
+                    
+                        li:hover, li > label:hover {
+                            text-decoration: underline;
+                            cursor: pointer
+                        }
+                    </style>
+
+
+                </ul>
+            </nav>
+            
+        </div>
+    </header>
+
+    <div class="container p-5">
+        <div class="m-3" style="display:flex; flex-direction: row;">
+            <div style="flex:1">
+                <h1 style="color: #262647 !important; font-size: x-large;"><b id="welcome"></b></h1>
+                <h4 style="color: #262647 !important;" class="mt-2" id="your-courses"></h4>
+            </div>
+            <div>
+                <button id="showImageModal" class="btn" data-bs-toggle="modal" data-bs-target="#imageModal">Source Images</button>
+                <button id="add-new-course" class="btn" data-bs-toggle="modal" data-bs-target="#exampleModal">Mark Attendance</button>
+            </div>
+            <style>
+                #showImageModal {
+                    background-color: #b7eafb;
+                    padding: 10px 20px;
+                    border-radius: 10px;
+                    cursor:pointer;
+
+                }
+                #add-new-course{
+                    background-color: #b7eafb;
+                    padding: 10px 20px;
+                    border-radius: 10px;
+                    cursor:pointer;
+                }
+                #add-new-course:hover{
+                    background-color: #9ae2fa;
+                }
+            </style>
+        </div>
+        <h1 style="color: #262647 !important; font-size: larger; text-align: center;"><b id="no-classes" style="margin-top: 50px; display: none;"></b></h1>
+        <div id="table-container" class="card m-3 mt-5 p-4 border-0  shadow-lg" style="border-radius: 1rem !important;display:none">
+			<div class="table-responsive">
+                <table class="table table-bordered" id="courses-table" border="1">
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel" style="font-size: 20px;">Mark Attendance</h5>
+              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div id="instructor-modal" style="display: none; flex-direction: row; justify-content: space-around;" >
+                    <div class="">
+                        <form action="/api/v1/upload_image" method="post" enctype="multipart/form-data" id="image-form">
+                            <button type="button" class="btn btn-secondary btn-md p-0">
+                                <label for="add-your-image-input" style="padding: 6px 12px">Upload Image</label>    
+                                <input type="file" name="add-your-image-input" id="add-your-image-input" style="display:none"> 
+                            </button>
+                        </form>      
+                    </div>
+                    <div id="bt-container">
+                        <button type="button" class="btn btn-primary btn-md" id="bt-btn" onclick="connectBluetoothInstructor()" data-bs-dismiss="modal">
+                            Connect 
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-bluetooth" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="m8.543 3.948 1.316 1.316L8.543 6.58V3.948Zm0 8.104 1.316-1.316L8.543 9.42v2.632Zm-1.41-4.043L4.275 5.133l.827-.827L7.377 6.58V1.128l4.137 4.136L8.787 8.01l2.745 2.745-4.136 4.137V9.42l-2.294 2.274-.827-.827L7.133 8.01ZM7.903 16c3.498 0 5.904-1.655 5.904-8.01 0-6.335-2.406-7.99-5.903-7.99C4.407 0 2 1.655 2 8.01 2 14.344 4.407 16 7.904 16Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+               
+                <div id="student-modal" class="custom-field" style="display: none;">
+                    <div id="bt-container">
+                        <video id="bt-video"></video>
+                        <button type="button" class="btn btn-primary btn-md" id="bt-student-btn" onclick="connectBluetoothInstructor()" data-bs-dismiss="modal" disabled>
+                            Connect 
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-bluetooth" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="m8.543 3.948 1.316 1.316L8.543 6.58V3.948Zm0 8.104 1.316-1.316L8.543 9.42v2.632Zm-1.41-4.043L4.275 5.133l.827-.827L7.377 6.58V1.128l4.137 4.136L8.787 8.01l2.745 2.745-4.136 4.137V9.42l-2.294 2.274-.827-.827L7.133 8.01ZM7.903 16c3.498 0 5.904-1.655 5.904-8.01 0-6.335-2.406-7.99-5.903-7.99C4.407 0 2 1.655 2 8.01 2 14.344 4.407 16 7.904 16Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal" onclick="">Cancel</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="btModal" tabindex="-1" role="dialog" aria-labelledby="btModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="btModalLabel" style="font-size: 18px;">Connected to </h5>
+              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" onclick="disconnect()">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div id="bt-instructor-modal" style="display: none;" >
+                    <div class="text-center">
+                        <p id="bt-network-status"></p>
+                        <button type="button" class="btn btn-primary btn-md mt-4 my-2" id="bt-take-image" onclick="inputWifi()">Activate</button>
+                    </div>
+                </div>
+               
+                <div id="bt-student-modal" class="custom-field" style="display: none;">
+               
+                </div>
+                
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal" onclick="disconnect()">Cancel</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="imageModalLabel" style="font-size: 18px;">Processed Images</h5>
+              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" >
+                <div class="swiper">
+                    <!-- Additional required wrapper -->
+                    <div class="swiper-wrapper" id="imageModalBody" style="min-height: 60px;">
+                      <!-- Slides -->
+                    </div>
+                    <!-- If we need pagination -->
+                    <div class="swiper-pagination"></div>
+                  
+                    <!-- If we need navigation buttons -->
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
+                  
+                  </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <!-- <script src="https://cdn.jsdelivr.net/gh/Rakhmadi/RdataTB@master/dist/index.js"></script> -->
+    <script src="js/RDataTB.js" ></script>
+    <script src="js/bluetooth.js"></script>
+    <script src="js/header.js"></script>
+
+    <script>
+        document.getElementById('add-your-image-input').addEventListener('change', async (event) => {
+            let form = new FormData(document.querySelector('#image-form'))
+            await fetch("/api/v1/mark_attendance", {
+                method: 'POST',
+                body: form
+            })
+                .then(async (res) => {
+                    if(res.status == 200){
+                        // alert(JSON.stringify(res))
+                        location.reload()
+                    } 
+                        
+                    else {
+                        const response = await res.json()
+                        console.error(response)
+                        alert(response.message)
+                    }
+                })
+                .catch((err) => {
+                    console.error(err)
+                    alert(err)
+                })
+            event.preventDefault()
+        
+        })
+        document.getElementById('profile').addEventListener('click', async () => {
+            const res = await fetch('/api/v1/switch')
+            if(res.status == 200) {
+                location.reload()
+            } else {
+                const j = await res.json()
+                console.error(j)
+                alert(j.message)
+            }
+        })
+        document.getElementById('logout').addEventListener('click', async () => {
+            await fetch('/api/v1/logout')
+                .then((res) => {
+                    if (res.status == 200) window.location.replace('/login.html')
+                    else {
+                        alert("Something went wrong.")
+                    }
+                })
+                .catch((err) => {
+                    console.error(err)
+                    alert(err)
+                })
+        })
+    </script>
+
+    <script>
+        document.querySelector('#bt-btn').disabled = navigator.bluetooth ? false: true
+
+        document.querySelector('#logout').addEventListener('click', async () => {
+            await fetch('/api/v1/logout')
+                .then((res) => { if (response.status == 200) window.location.href = '/login.html' })
+                .catch((err) => {
+                    console.error(err);
+
+                })
+        })
+
+        contains = (element, list) => {
+            for(i = 0; i<list.length; i++) {
+                if(element == list[i]) return true;
+            }
+            return false
+        }
+
+        window.UUID = {
+            PREFIX: '00000000-0000-0000-0000-',
+            SERVICE_ID: 'FD2B4448-AA0F-4A15-A62F-EB0BE77A0000',
+            SERVICE_NAME: 'FD2B4448-AA0F-4A15-A62F-EB0BE77A0001',
+            DEVICE_MODEL: 'FD2B4448-AA0F-4A15-A62F-EB0BE77A0002',
+            WIFI_NAME: 'FD2B4448-AA0F-4A15-A62F-EB0BE77A0003',
+            IP_ADDRESS: 'FD2B4448-AA0F-4A15-A62F-EB0BE77A0004',
+            INPUT: 'FD2B4448-AA0F-4A15-A62F-EB0BE77A0005',
+            NOTIFY_MESSAGE: 'FD2B4448-AA0F-4A15-A62F-EB0BE77A0006',
+            INPUT_SEP: 'FD2B4448-AA0F-4A15-A62F-EB0BE77A0007',
+            CUSTOM_COMMAND_INPUT: 'FD2B4448-AA0F-4A15-A62F-EB0BE77A0008',
+            CUSTOM_COMMAND_NOTIFY: 'FD2B4448-AA0F-4A15-A62F-EB0BE77A0009',
+            CUSTOM_INFO_LABEL: 'FD2BCCCA',
+            CUSTOM_INFO_COUNT: 'FD2BCCAA0000',
+            CUSTOM_INFO: 'FD2BCCCB',
+            CUSTOM_COMMAND_LABEL: 'FD2BCCCC',
+            CUSTOM_COMMAND_COUNT: 'FD2BCCAC0000'
+        }
+
+        Object.keys(UUID).forEach((key) => {
+            window.UUID[key] = window.UUID[key].toLowerCase()
+        });
+
+        getData = async () => {
+            // fetch Data
+            await fetch('/api/v1/course')
+                .then(async (res) => {
+                    if (res.status != 200) {
+                        res = await res.json()
+                        alert(res.message)
+                        console.error(res)
+                        return
+                    }
+                    
+                    let data = await res.json();
+                    window.data = data
+                    console.log(data)
+                    document.getElementById('profile').innerText = `${data.name} - ${data.is_instructor ? "Instructor" : "Student"} (Switch)`
+                    document.getElementById('welcome').innerText = `[${data.table.code}] - ${data.table.name}`
+                    document.getElementById('your-courses').innerText = `Instructor: ${data.table.instructor}`
+                    // document.getElementById('add-your-image').style.display = !data.is_instructor ? "none" : "block"
+                    document.title = data.table.name + document.title
+
+                    window.course = data.table.id
+
+                    if(data.is_instructor) {
+                        document.querySelector('#instructor-modal').style.display = 'flex';
+                        if(window.navigator.bluetooth) document.querySelector('#bt-container').style.display= 'block'
+                    } else {
+                        document.querySelector('#student-modal').style.display = 'block';
+                    }
+
+                    const table = document.getElementById('courses-table')
+                    if(data.days.length != 0) {
+                        if(data.is_instructor  || true) {
+                            temp_days = ""
+                            data.days.forEach((item) => {temp_days+=`<th>${item}</th>`})
+                            data["last"] = data.days[data.days.length-1]
+                            console.log(temp_days, data.days)
+                            table.innerHTML = `					
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Attendance</th>
+                                        ${temp_days}
+                                    </tr>
+                                </thead>
+                                <tbody id="courses-table-body">
+                                </tbody>`
+                                const table_body = document.getElementById('courses-table-body')
+                                let temp = ""
+                                data.students.forEach((item) => {
+                                    temp+=`
+                                        <tr>
+                                            <td>${item[1]}</td>
+                                            <td>${data.result[item[0]][0]} %</td>
+                                            ${data.days.map((it) => {
+                                                let con = contains(it[0], data.result[item[0]][1])
+                                                return `<td>${con ? "P" : "A" }</td>`
+                                            })}
+                                        </tr>
+                                    `
+                                })
+                                table_body.innerHTML = temp
+                            
+                        }
+
+                        let x = new RdataTB('courses-table', {
+                            // RenderJSON: data.result,
+                            ShowSearch:true, 
+                            ShowSelect:true,
+                            ShowPaginate:true,
+                            HideColumn:["id", "P", "A"],
+                            SelectionNumber: [50, 100, 200]
+                        })
+                        document.getElementById('table-container').style.display = 'block'
+                    } else {
+                        document.getElementById('no-classes').innerText = "There have been no classes this semester."
+                        document.getElementById('no-classes').style.display = 'block'
+                    }
+
+                })
+                .catch((err)=> {
+                        console.error(err)
+                        alert("Something went wrong.")
+                })
+        }
+        getData()
+            .then(async () => {await getImages().then(() => {
+
+            })})
+
+        getImages = async () => {
+            const date = new Date();
+            const res = await fetch(`/temp/status_${window.course}_${date.getFullYear()}-${date.getMonth() < 9 ? "0" : ""}${date.getMonth()+1}-${date.getDate() < 10 ? "0": ""}${date.getDate()}.json?nocache=123`)
+                                .catch(err => console.log(err))
+            
+            // const res = await fetch(`/temp/status_${window.course}_${date.getFullYear()}-${date.getMonth() < 9 ? "0" : ""}${date.getMonth()+1}-${date.getDate() < 10 ? "0": ""}${17}.json`)
+            //                     .catch(err => console.log(err))
+            const element = document.querySelector('#imageModalBody')
+            if(res.status == 200){
+                const data = await res.json()
+                data.forEach((item) => {
+                    if(item.error) return; 
+                    const div = document.createElement('div')
+                    div.style.textAlign = 'center'
+                    div.classList.add('swiper-slide')
+                    const img = document.createElement(`img`)
+                    img.src = `/${item.image}`
+                    img.style.maxHeight='50vh'
+                    img.style.maxWidth='50vw'
+                    img.classList.add('mx-auto')
+                    div.appendChild(img)
+                    element.appendChild(div)
+  
+                })
+            } else {
+                element.innerHTML = "No image were uploaded for today."
+            } 
+
+            window.swiper =     new Swiper('.swiper', {
+                                        nextButton: '.swiper-button-next',
+                                        prevButton: '.swiper-button-prev',
+                                        navigation: {
+                                            nextEl: ".swiper-button-next",
+                                            prevEl: ".swiper-button-prev"
+                                        },
+                                        slidesPerView: 1,
+                                        pagination: {
+                                            el: '.swiper-pagination',
+                                            clickable: true,
+                                        },  
+                                        spaceBetween: 20,
+                                        observer: true,
+                                        observeParents: true,
+                                        parallax:true,
+                                        centeredSlides:true
+                                    });
+
+        }
+
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+    crossorigin="anonymous"></script>
+
+
+
+    <script>
+        document.querySelectorAll('th').forEach((ref) => {
+            console.log(ref.innerText)
+            if (ref.innerText == data["last"]) {
+                ref.style['border-top-right-radius'] = '20px !important' ;
+            }
+        })
+    </script>
+
+    <style>
+        
+        th {
+            font-weight: 600;
+            font-size: 16px;
+            /* border: 2px rgba(74, 71, 71, 0.1) solid !important; */
+            padding: 20px !important;
+            background-color: #B7EAFB !important;
+        }
+
+        #C > tbody > tr > td {
+            padding: 0 !important;
+            border: none !important;
+        }
+
+        #C > tbody > tr:hover {
+            background-color: white !important;
+            text-decoration: none;
+        }
+        
+        tbody > tr:hover {
+            background-color: #e3e3e3;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        td{
+            padding: 10px 20px !important;
+            border: 2px rgba(74, 71, 71, 0.1) solid !important;
+
+        }
+        .Selc {
+            display: block;
+        }
+
+
+        #courses-table > thead > tr :nth-child(1) {
+            border-top-left-radius: 20px;
+        } 
+        #courses-table > thead > tr :last-child {
+            border-top-right-radius: 20px;
+        } 
+        tr > :last-child {
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+        }
+
+        /* #P_header {
+            display: none !important;
+        }
+        #A_header{
+            display: none !important;
+        } */
+    </style>
+</body>
+</html>
